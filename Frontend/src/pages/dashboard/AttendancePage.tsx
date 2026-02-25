@@ -1,17 +1,36 @@
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClipboardList, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-const records = [
-  { id: "1", date: "2024-01-15", present: true, courseTitle: "Introduction à la Programmation" },
-  { id: "2", date: "2024-01-17", present: true, courseTitle: "Algorithmes et Structures de Données" },
-  { id: "3", date: "2024-01-22", present: false, courseTitle: "Base de Données" },
-  { id: "4", date: "2024-01-24", present: true, courseTitle: "Développement Web" },
-  { id: "5", date: "2024-01-29", present: true, courseTitle: "Intelligence Artificielle" },
+// ... rest of the code
+
+type AttendanceRecord = {
+  id: string;
+  date: string;
+  present: boolean;
+  courseTitle: string;
+};
+
+const MOCK_RECORDS: AttendanceRecord[] = [
+  { id: "1", date: "2024-03-18", present: true, courseTitle: "Mathématiques Avancées" },
+  { id: "2", date: "2024-03-17", present: false, courseTitle: "Programmation Web" },
+  { id: "3", date: "2024-03-15", present: true, courseTitle: "Bases de Données" },
+  { id: "4", date: "2024-03-14", present: true, courseTitle: "Algorithmique" },
+  { id: "5", date: "2024-03-13", present: false, courseTitle: "Réseaux Informatiques" },
+  { id: "6", date: "2024-03-12", present: true, courseTitle: "Intelligence Artificielle" },
+  { id: "7", date: "2024-03-11", present: true, courseTitle: "Mathématiques Avancées" },
+  { id: "8", date: "2024-03-10", present: true, courseTitle: "Programmation Web" },
+  { id: "9", date: "2024-03-08", present: false, courseTitle: "Algorithmique" },
+  { id: "10", date: "2024-03-07", present: true, courseTitle: "Bases de Données" },
 ];
 
 export default function AttendancePage() {
+  const records = MOCK_RECORDS;
+
   const total = records.length;
   const present = records.filter((r) => r.present).length;
   const rate = total > 0 ? Math.round((present / total) * 100) : 0;
@@ -74,38 +93,32 @@ export default function AttendancePage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {records.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">Aucun enregistrement</p>
-            ) : (
-              records.map((rec, i) => (
-                <motion.div
-                  key={rec.id}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
-                >
-                  <div className="flex items-center gap-3">
-                    {rec.present ? (
-                      <CheckCircle2 className="h-4 w-4 text-primary" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-destructive" />
-                    )}
-                    <div>
-                      <p className="text-sm font-medium">
-                        {rec.courseTitle}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {rec.date}
-                      </p>
-                    </div>
+            {records.map((rec, i) => (
+              <motion.div
+                key={rec.id}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.03 }}
+                className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+              >
+                <div className="flex items-center gap-3">
+                  {rec.present ? (
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-destructive" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium">{rec.courseTitle}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(rec.date), "EEEE d MMMM yyyy", { locale: fr })}
+                    </p>
                   </div>
-                  <Badge variant={rec.present ? "secondary" : "destructive"} className="text-xs">
-                    {rec.present ? "Présent" : "Absent"}
-                  </Badge>
-                </motion.div>
-              ))
-            )}
+                </div>
+                <Badge variant={rec.present ? "secondary" : "destructive"} className="text-xs">
+                  {rec.present ? "Présent" : "Absent"}
+                </Badge>
+              </motion.div>
+            ))}
           </div>
         </CardContent>
       </Card>

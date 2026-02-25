@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 
 const DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-
 const DAY_COLORS = [
   "bg-primary/10 border-primary/20",
   "bg-accent/10 border-accent/20",
@@ -15,16 +13,30 @@ const DAY_COLORS = [
   "bg-secondary border-secondary",
 ];
 
-const schedules = [
-  { id: "1", day_of_week: 1, start_time: "09:00", end_time: "10:30", room: "Salle 101", courseTitle: "Introduction à la Programmation" },
-  { id: "2", day_of_week: 1, start_time: "11:00", end_time: "12:30", room: "Salle 102", courseTitle: "Algorithmes et Structures de Données" },
-  { id: "3", day_of_week: 2, start_time: "09:00", end_time: "10:30", room: "Salle 201", courseTitle: "Base de Données" },
-  { id: "4", day_of_week: 2, start_time: "14:00", end_time: "15:30", room: "Salle 103", courseTitle: "Développement Web" },
-  { id: "5", day_of_week: 3, start_time: "10:00", end_time: "11:30", room: "Salle 301", courseTitle: "Intelligence Artificielle" },
+type Schedule = {
+  id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  room: string | null;
+  course: { title: string } | null;
+};
+
+// Mock schedule data
+const MOCK_SCHEDULES: Schedule[] = [
+  { id: "1", day_of_week: 1, start_time: "09:00", end_time: "11:00", room: "A101", course: { title: "Introduction à la programmation" } },
+  { id: "2", day_of_week: 1, start_time: "14:00", end_time: "16:00", room: "B203", course: { title: "Mathématiques pour l'informatique" } },
+  { id: "3", day_of_week: 2, start_time: "10:00", end_time: "12:00", room: "C305", course: { title: "Bases de données" } },
+  { id: "4", day_of_week: 2, start_time: "15:00", end_time: "17:00", room: "A102", course: { title: "Développement web" } },
+  { id: "5", day_of_week: 3, start_time: "09:00", end_time: "12:00", room: "B201", course: { title: "Algorithmes et structures de données" } },
+  { id: "6", day_of_week: 4, start_time: "13:00", end_time: "15:00", room: "C301", course: { title: "Intelligence artificielle" } },
+  { id: "7", day_of_week: 5, start_time: "11:00", end_time: "13:00", room: "A104", course: { title: "Réseaux" } },
+  { id: "8", day_of_week: 5, start_time: "15:00", end_time: "17:00", room: "B207", course: { title: "Sécurité informatique" } },
 ];
 
 export default function SchedulePage() {
-  const [selectedDay, setSelectedDay] = useState(1);
+  const [schedules] = useState<Schedule[]>(MOCK_SCHEDULES);
+  const [selectedDay, setSelectedDay] = useState(new Date().getDay());
 
   const daySchedules = schedules.filter((s) => s.day_of_week === selectedDay);
 
@@ -84,7 +96,7 @@ export default function SchedulePage() {
                     <span className="text-xs text-muted-foreground">{s.end_time}</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">{s.courseTitle}</p>
+                    <p className="font-medium">{s.course?.title || "Cours"}</p>
                     {s.room && (
                       <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                         <MapPin className="h-3 w-3" /> {s.room}

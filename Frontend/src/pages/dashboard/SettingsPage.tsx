@@ -5,33 +5,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings, User, Lock, Save } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+
+// Mock user profile
+const MOCK_PROFILE = {
+  first_name: "Jean",
+  last_name: "Dupont",
+  email: "jean.dupont@example.com",
+};
 
 export default function SettingsPage() {
-  const [firstName, setFirstName] = useState("John");
-  const [lastName, setLastName] = useState("Doe");
+  const [firstName, setFirstName] = useState(MOCK_PROFILE.first_name);
+  const [lastName, setLastName] = useState(MOCK_PROFILE.last_name);
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
 
-  const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [changingPw, setChangingPw] = useState(false);
 
   const handleSaveProfile = () => {
     setSaving(true);
-    // Mock save - simulate delay
+    // Simulate API call
     setTimeout(() => {
+      toast.success("Profil mis à jour ✅");
       setSaving(false);
-    }, 1000);
+    }, 500);
   };
 
   const handleChangePassword = () => {
+    if (!newPw) {
+      toast.error("Veuillez entrer un nouveau mot de passe");
+      return;
+    }
+    
     setChangingPw(true);
-    // Mock password change - simulate delay
+    // Simulate API call
     setTimeout(() => {
-      setChangingPw(false);
-      setCurrentPw("");
+      toast.success("Mot de passe changé ✅");
       setNewPw("");
-    }, 1000);
+      setChangingPw(false);
+    }, 500);
   };
 
   return (
@@ -63,7 +76,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input value="john.doe@example.com" disabled className="bg-muted" />
+              <Input value={MOCK_PROFILE.email} disabled className="bg-muted" />
             </div>
             <Button onClick={handleSaveProfile} disabled={saving} className="gap-1">
               <Save className="h-4 w-4" /> {saving ? "Sauvegarde..." : "Enregistrer"}
@@ -82,9 +95,19 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Nouveau mot de passe</Label>
-              <Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="••••••••" />
+              <Input 
+                type="password" 
+                value={newPw} 
+                onChange={(e) => setNewPw(e.target.value)} 
+                placeholder="••••••••" 
+              />
             </div>
-            <Button onClick={handleChangePassword} disabled={changingPw || !newPw} variant="outline" className="gap-1">
+            <Button 
+              onClick={handleChangePassword} 
+              disabled={changingPw || !newPw} 
+              variant="outline" 
+              className="gap-1"
+            >
               <Lock className="h-4 w-4" /> {changingPw ? "Changement..." : "Changer"}
             </Button>
           </CardContent>

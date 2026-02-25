@@ -4,15 +4,64 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { FolderOpen, Search, FileText, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-const materials = [
-  { id: "1", title: "Cours 1 - Introduction", description: "Introduction à la programmation Python", file_url: "#", created_at: "2024-01-15", courseTitle: "Introduction à la Programmation" },
-  { id: "2", title: "TD 1 - Algorithmes", description: "Travaux dirigés sur les algorithmes de tri", file_url: "#", created_at: "2024-01-17", courseTitle: "Algorithmes et Structures de Données" },
-  { id: "3", title: "Cours 2 - SQL", description: "Langage SQL et requêtes", file_url: "#", created_at: "2024-01-20", courseTitle: "Base de Données" },
-  { id: "4", title: "TP - HTML/CSS", description: "Travaux pratiques HTML et CSS", file_url: "#", created_at: "2024-01-22", courseTitle: "Développement Web" },
+type Material = {
+  id: string;
+  title: string;
+  description: string | null;
+  file_url: string | null;
+  created_at: string;
+  course: { title: string } | null;
+};
+
+// Mock materials data
+const MOCK_MATERIALS: Material[] = [
+  {
+    id: "1",
+    title: "Cours 1: Introduction à Python",
+    description: "Slides et exercices",
+    file_url: "#",
+    created_at: "2024-03-15T10:00:00Z",
+    course: { title: "Introduction à la programmation" }
+  },
+  {
+    id: "2",
+    title: "Exercices - Algèbre linéaire",
+    description: "Série d'exercices corrigés",
+    file_url: "#",
+    created_at: "2024-03-14T14:30:00Z",
+    course: { title: "Mathématiques pour l'informatique" }
+  },
+  {
+    id: "3",
+    title: "TD SQL",
+    description: "Requêtes SQL avancées",
+    file_url: "#",
+    created_at: "2024-03-13T09:15:00Z",
+    course: { title: "Bases de données" }
+  },
+  {
+    id: "4",
+    title: "Projet React",
+    description: "Consignes et ressources",
+    file_url: "#",
+    created_at: "2024-03-12T16:45:00Z",
+    course: { title: "Développement web" }
+  },
+  {
+    id: "5",
+    title: "Algorithmes de tri",
+    description: "Implémentations en Python",
+    file_url: "#",
+    created_at: "2024-03-11T11:20:00Z",
+    course: { title: "Algorithmes et structures de données" }
+  },
 ];
 
 export default function MaterialsPage() {
+  const [materials] = useState<Material[]>(MOCK_MATERIALS);
   const [search, setSearch] = useState("");
 
   const filtered = materials.filter((m) =>
@@ -30,7 +79,12 @@ export default function MaterialsPage() {
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input placeholder="Rechercher un support..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+        <Input 
+          placeholder="Rechercher un support..." 
+          value={search} 
+          onChange={(e) => setSearch(e.target.value)} 
+          className="pl-10" 
+        />
       </div>
 
       <div className="space-y-3">
@@ -53,15 +107,20 @@ export default function MaterialsPage() {
                     <p className="font-medium text-sm truncate">{mat.title}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="secondary" className="text-xs">
-                        {mat.courseTitle}
+                        {mat.course?.title || "Cours"}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {mat.created_at}
+                        {format(new Date(mat.created_at), "d MMM yyyy", { locale: fr })}
                       </span>
                     </div>
                   </div>
                   {mat.file_url && (
-                    <a href={mat.file_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors">
+                    <a 
+                      href={mat.file_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-primary hover:text-primary/80 transition-colors"
+                    >
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   )}

@@ -1,31 +1,35 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Users, BookOpen, Building2, GraduationCap, TrendingUp } from "lucide-react";
+import { BarChart3, Users, BookOpen, GraduationCap, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 const COLORS = ["hsl(152, 32%, 36%)", "hsl(28, 80%, 56%)", "hsl(200, 50%, 50%)", "hsl(340, 60%, 55%)"];
 
-const stats = {
-  students: 156,
-  teachers: 24,
-  courses: 48,
+// Mock stats data
+const MOCK_STATS = {
+  students: 42,
+  teachers: 8,
+  courses: 15,
   filieres: 5,
-  pending: 12
+  pending: 3,
 };
 
-const roleData = [
-  { name: "Étudiants", value: stats.students },
-  { name: "Enseignants", value: stats.teachers },
-];
-
-const barData = [
-  { name: "Étudiants", count: stats.students },
-  { name: "Enseignants", count: stats.teachers },
-  { name: "Cours", count: stats.courses },
-  { name: "Filières", count: stats.filieres },
-];
-
 export default function StatsPage() {
+  const [stats] = useState(MOCK_STATS);
+
+  const roleData = [
+    { name: "Étudiants", value: stats.students },
+    { name: "Enseignants", value: stats.teachers },
+  ];
+
+  const barData = [
+    { name: "Étudiants", count: stats.students },
+    { name: "Enseignants", count: stats.teachers },
+    { name: "Cours", count: stats.courses },
+    { name: "Filières", count: stats.filieres },
+  ];
+
   const statCards = [
     { label: "Étudiants", value: stats.students, icon: GraduationCap, color: "bg-primary/10 text-primary" },
     { label: "Enseignants", value: stats.teachers, icon: BookOpen, color: "bg-accent/10 text-accent" },
@@ -46,7 +50,12 @@ export default function StatsPage() {
         {statCards.map((stat, i) => {
           const Icon = stat.icon;
           return (
-            <motion.div key={stat.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
+            <motion.div 
+              key={stat.label} 
+              initial={{ opacity: 0, y: 12 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: i * 0.1 }}
+            >
               <Card className="shadow-card border-0">
                 <CardContent className="p-5 flex items-center justify-between">
                   <div>
@@ -65,7 +74,9 @@ export default function StatsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="shadow-card border-0">
-          <CardHeader><CardTitle className="font-display text-lg">Répartition</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="font-display text-lg">Répartition</CardTitle>
+          </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={barData}>
@@ -84,11 +95,21 @@ export default function StatsPage() {
         </Card>
 
         <Card className="shadow-card border-0">
-          <CardHeader><CardTitle className="font-display text-lg">Utilisateurs par rôle</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="font-display text-lg">Utilisateurs par rôle</CardTitle>
+          </CardHeader>
           <CardContent className="flex items-center justify-center">
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
-                <Pie data={roleData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                <Pie 
+                  data={roleData} 
+                  cx="50%" 
+                  cy="50%" 
+                  innerRadius={60} 
+                  outerRadius={90} 
+                  dataKey="value" 
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
                   {roleData.map((_, i) => (
                     <Cell key={i} fill={COLORS[i % COLORS.length]} />
                   ))}

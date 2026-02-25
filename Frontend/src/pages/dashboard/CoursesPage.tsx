@@ -2,34 +2,73 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Search, Star, Users } from "lucide-react";
+import { BookOpen, Search, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const courses = [
-  { id: "1", title: "Introduction à la Programmation", description: "Bases de la programmation avec Python", credits: 4, semester: 1 },
-  { id: "2", title: "Algorithmes et Structures de Données", description: "Étude des algorithmes classiques", credits: 5, semester: 2 },
-  { id: "3", title: "Base de Données", description: "Conception et gestion des bases de données relationnelles", credits: 4, semester: 2 },
-  { id: "4", title: "Développement Web", description: "Création d'applications web modernes", credits: 4, semester: 3 },
-  { id: "5", title: "Intelligence Artificielle", description: "Introduction aux concepts de l'IA et du machine learning", credits: 5, semester: 4 },
-  { id: "6", title: "Réseaux Informatiques", description: "Protocoles et architectures réseau", credits: 3, semester: 3 },
+// Mock data for static display
+const MOCK_COURSES = [
+  {
+    id: "1",
+    title: "Introduction à la programmation",
+    description: "Apprenez les bases de la programmation avec Python",
+    credits: 3,
+    semester: 1,
+  },
+  {
+    id: "2",
+    title: "Mathématiques pour l'informatique",
+    description: "Algèbre linéaire, calcul et logique mathématique",
+    credits: 4,
+    semester: 1,
+  },
+  {
+    id: "3",
+    title: "Bases de données",
+    description: "Conception et implémentation de bases de données relationnelles",
+    credits: 3,
+    semester: 2,
+  },
+  {
+    id: "4",
+    title: "Développement web",
+    description: "Création d'applications web modernes avec React et Node.js",
+    credits: 4,
+    semester: 2,
+  },
+  {
+    id: "5",
+    title: "Algorithmes et structures de données",
+    description: "Étude des algorithmes fondamentaux et des structures de données",
+    credits: 3,
+    semester: 3,
+  },
+  {
+    id: "6",
+    title: "Intelligence artificielle",
+    description: "Introduction aux concepts et techniques de l'IA",
+    credits: 3,
+    semester: 3,
+  },
 ];
 
 export default function CoursesPage() {
   const [search, setSearch] = useState("");
 
-  const filtered = courses.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase())
+  const filtered = MOCK_COURSES.filter((course) =>
+    course.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <h1 className="font-display text-2xl font-bold flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-primary" /> Cours
+          <BookOpen className="h-6 w-6 text-primary" />
+          Cours
         </h1>
-        <p className="text-muted-foreground">
-          Explorez vos cours
-        </p>
+        <p className="text-muted-foreground">Explorez nos cours disponibles</p>
       </motion.div>
 
       <div className="relative">
@@ -70,7 +109,8 @@ export default function CoursesPage() {
                   </p>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Star className="h-3 w-3" /> {course.credits || 3} crédits
+                      <Star className="h-3 w-3" />
+                      {course.credits || 3} crédits
                     </span>
                   </div>
                 </CardContent>
