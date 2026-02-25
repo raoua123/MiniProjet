@@ -1,35 +1,21 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Users, Search, GraduationCap, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Student = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  status: string;
-};
+const students = [
+  { id: "1", first_name: "Ahmed", last_name: "Benali", email: "ahmed.benali@email.com" },
+  { id: "2", first_name: "Sara", last_name: "Mansouri", email: "sara.mansouri@email.com" },
+  { id: "3", first_name: "Karim", last_name: "Ladjali", email: "karim.ladjali@email.com" },
+  { id: "4", first_name: "Fatima", last_name: "Zahra", email: "fatima.zahra@email.com" },
+  { id: "5", first_name: "Youssef", last_name: "Amrani", email: "youssef.amrani@email.com" },
+  { id: "6", first_name: "Nadia", last_name: "Boukhalfa", email: "nadia.boukhalfa@email.com" },
+];
 
 export default function StudentsPage() {
-  const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name, email, status")
-        .eq("role", "student")
-        .eq("status", "approved")
-        .order("last_name");
-      setStudents(data || []);
-    };
-    fetch();
-  }, []);
 
   const filtered = students.filter((s) =>
     `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.toLowerCase())

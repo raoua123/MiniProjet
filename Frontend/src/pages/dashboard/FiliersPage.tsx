@@ -1,53 +1,43 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 
-type Filiere = { id: string; name: string; description: string | null };
+const filieres = [
+  { id: "1", name: "Informatique", description: "Filière informatique générale" },
+  { id: "2", name: "Mathématiques", description: "Filière mathématiques appliquées" },
+  { id: "3", name: "Physique", description: "Filière physique fondamentale" },
+  { id: "4", name: "Chimie", description: "Filière chimie industrielle" },
+];
 
 export default function FilieresPage() {
-  const [filieres, setFilieres] = useState<Filiere[]>([]);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [editId, setEditId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
-  const fetchData = async () => {
-    const { data } = await supabase.from("filieres").select("*").order("name");
-    setFilieres(data || []);
+  const handleSave = () => {
+    setName("");
+    setDesc("");
+    setEditId(null);
+    setOpen(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
-
-  const handleSave = async () => {
-    if (!name.trim()) return;
-    if (editId) {
-      await supabase.from("filieres").update({ name, description: desc || null }).eq("id", editId);
-      toast.success("Filière mise à jour");
-    } else {
-      await supabase.from("filieres").insert({ name, description: desc || null });
-      toast.success("Filière créée");
-    }
-    setName(""); setDesc(""); setEditId(null); setOpen(false);
-    fetchData();
+  const handleDelete = (id: string) => {
+    // Mock delete - in real UI would remove from list
   };
 
-  const handleDelete = async (id: string) => {
-    await supabase.from("filieres").delete().eq("id", id);
-    toast.success("Filière supprimée");
-    fetchData();
-  };
-
-  const startEdit = (f: Filiere) => {
-    setEditId(f.id); setName(f.name); setDesc(f.description || ""); setOpen(true);
+  const startEdit = (f: any) => {
+    setEditId(f.id);
+    setName(f.name);
+    setDesc(f.description || "");
+    setOpen(true);
   };
 
   return (

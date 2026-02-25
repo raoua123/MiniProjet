@@ -1,32 +1,21 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { BookOpen, Search, Star, Users } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Course = {
-  id: string;
-  title: string;
-  description: string | null;
-  credits: number | null;
-  semester: number | null;
-};
+const courses = [
+  { id: "1", title: "Introduction à la Programmation", description: "Bases de la programmation avec Python", credits: 4, semester: 1 },
+  { id: "2", title: "Algorithmes et Structures de Données", description: "Étude des algorithmes classiques", credits: 5, semester: 2 },
+  { id: "3", title: "Base de Données", description: "Conception et gestion des bases de données relationnelles", credits: 4, semester: 2 },
+  { id: "4", title: "Développement Web", description: "Création d'applications web modernes", credits: 4, semester: 3 },
+  { id: "5", title: "Intelligence Artificielle", description: "Introduction aux concepts de l'IA et du machine learning", credits: 5, semester: 4 },
+  { id: "6", title: "Réseaux Informatiques", description: "Protocoles et architectures réseau", credits: 3, semester: 3 },
+];
 
 export default function CoursesPage() {
-  const { profile } = useAuth();
-  const [courses, setCourses] = useState<Course[]>([]);
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.from("courses").select("*").order("title");
-      setCourses(data || []);
-    };
-    fetch();
-  }, []);
 
   const filtered = courses.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
@@ -39,7 +28,7 @@ export default function CoursesPage() {
           <BookOpen className="h-6 w-6 text-primary" /> Cours
         </h1>
         <p className="text-muted-foreground">
-          {profile?.role === "teacher" ? "Gérez vos cours" : "Explorez vos cours"}
+          Explorez vos cours
         </p>
       </motion.div>
 

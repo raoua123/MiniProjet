@@ -1,20 +1,19 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Search, Shield, GraduationCap, BookOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type UserProfile = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  role: string;
-  status: string;
-};
+const users = [
+  { id: "1", first_name: "Ahmed", last_name: "Benali", email: "ahmed@email.com", role: "student" },
+  { id: "2", first_name: "Sara", last_name: "Mansouri", email: "sara@email.com", role: "teacher" },
+  { id: "3", first_name: "Karim", last_name: "Ladjali", email: "karim@email.com", role: "student" },
+  { id: "4", first_name: "Admin", last_name: "User", email: "admin@email.com", role: "admin" },
+  { id: "5", first_name: "Fatima", last_name: "Zahra", email: "fatima@email.com", role: "teacher" },
+  { id: "6", first_name: "Youssef", last_name: "Amrani", email: "youssef@email.com", role: "student" },
+];
 
 const roleMeta: Record<string, { icon: any; label: string; color: string }> = {
   admin: { icon: Shield, label: "Admin", color: "bg-destructive/10 text-destructive" },
@@ -23,21 +22,8 @@ const roleMeta: Record<string, { icon: any; label: string; color: string }> = {
 };
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<UserProfile[]>([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, first_name, last_name, email, role, status")
-        .eq("status", "approved")
-        .order("last_name");
-      setUsers(data || []);
-    };
-    fetch();
-  }, []);
 
   const filtered = users.filter((u) => {
     const matchesSearch = `${u.first_name} ${u.last_name} ${u.email}`.toLowerCase().includes(search.toLowerCase());

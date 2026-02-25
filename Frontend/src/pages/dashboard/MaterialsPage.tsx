@@ -1,36 +1,19 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { FolderOpen, Search, FileText, Download, ExternalLink } from "lucide-react";
+import { FolderOpen, Search, FileText, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 
-type Material = {
-  id: string;
-  title: string;
-  description: string | null;
-  file_url: string | null;
-  created_at: string;
-  course: { title: string } | null;
-};
+const materials = [
+  { id: "1", title: "Cours 1 - Introduction", description: "Introduction à la programmation Python", file_url: "#", created_at: "2024-01-15", courseTitle: "Introduction à la Programmation" },
+  { id: "2", title: "TD 1 - Algorithmes", description: "Travaux dirigés sur les algorithmes de tri", file_url: "#", created_at: "2024-01-17", courseTitle: "Algorithmes et Structures de Données" },
+  { id: "3", title: "Cours 2 - SQL", description: "Langage SQL et requêtes", file_url: "#", created_at: "2024-01-20", courseTitle: "Base de Données" },
+  { id: "4", title: "TP - HTML/CSS", description: "Travaux pratiques HTML et CSS", file_url: "#", created_at: "2024-01-22", courseTitle: "Développement Web" },
+];
 
 export default function MaterialsPage() {
-  const [materials, setMaterials] = useState<Material[]>([]);
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("course_materials")
-        .select("id, title, description, file_url, created_at, course:courses(title)")
-        .order("created_at", { ascending: false });
-      setMaterials((data as any) || []);
-    };
-    fetch();
-  }, []);
 
   const filtered = materials.filter((m) =>
     m.title.toLowerCase().includes(search.toLowerCase())
@@ -70,10 +53,10 @@ export default function MaterialsPage() {
                     <p className="font-medium text-sm truncate">{mat.title}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge variant="secondary" className="text-xs">
-                        {(mat.course as any)?.title || "Cours"}
+                        {mat.courseTitle}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {format(new Date(mat.created_at), "d MMM yyyy", { locale: fr })}
+                        {mat.created_at}
                       </span>
                     </div>
                   </div>

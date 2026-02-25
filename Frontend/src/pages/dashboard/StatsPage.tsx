@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, BookOpen, Building2, GraduationCap, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
@@ -7,42 +5,27 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 const COLORS = ["hsl(152, 32%, 36%)", "hsl(28, 80%, 56%)", "hsl(200, 50%, 50%)", "hsl(340, 60%, 55%)"];
 
+const stats = {
+  students: 156,
+  teachers: 24,
+  courses: 48,
+  filieres: 5,
+  pending: 12
+};
+
+const roleData = [
+  { name: "Étudiants", value: stats.students },
+  { name: "Enseignants", value: stats.teachers },
+];
+
+const barData = [
+  { name: "Étudiants", count: stats.students },
+  { name: "Enseignants", count: stats.teachers },
+  { name: "Cours", count: stats.courses },
+  { name: "Filières", count: stats.filieres },
+];
+
 export default function StatsPage() {
-  const [stats, setStats] = useState({ students: 0, teachers: 0, courses: 0, filieres: 0, pending: 0 });
-  const [roleData, setRoleData] = useState<{ name: string; value: number }[]>([]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      const [students, teachers, courses, filieres, pending] = await Promise.all([
-        supabase.from("profiles").select("id", { count: "exact" }).eq("role", "student").eq("status", "approved"),
-        supabase.from("profiles").select("id", { count: "exact" }).eq("role", "teacher").eq("status", "approved"),
-        supabase.from("courses").select("id", { count: "exact" }),
-        supabase.from("filieres").select("id", { count: "exact" }),
-        supabase.from("profiles").select("id", { count: "exact" }).eq("status", "pending"),
-      ]);
-      const s = {
-        students: students.count || 0,
-        teachers: teachers.count || 0,
-        courses: courses.count || 0,
-        filieres: filieres.count || 0,
-        pending: pending.count || 0,
-      };
-      setStats(s);
-      setRoleData([
-        { name: "Étudiants", value: s.students },
-        { name: "Enseignants", value: s.teachers },
-      ]);
-    };
-    fetch();
-  }, []);
-
-  const barData = [
-    { name: "Étudiants", count: stats.students },
-    { name: "Enseignants", count: stats.teachers },
-    { name: "Cours", count: stats.courses },
-    { name: "Filières", count: stats.filieres },
-  ];
-
   const statCards = [
     { label: "Étudiants", value: stats.students, icon: GraduationCap, color: "bg-primary/10 text-primary" },
     { label: "Enseignants", value: stats.teachers, icon: BookOpen, color: "bg-accent/10 text-accent" },

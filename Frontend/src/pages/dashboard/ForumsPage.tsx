@@ -1,39 +1,19 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { MessageSquare, Search, MessageCircle, Plus, ChevronRight } from "lucide-react";
+import { MessageSquare, Search, MessageCircle, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 
-type Forum = {
-  id: string;
-  title: string;
-  description: string | null;
-  forum_type: string;
-  created_at: string;
-  course: { title: string } | null;
-};
+const forums = [
+  { id: "1", title: "Discussion sur les algorithmes", description: "Échangez sur les algorithmes et structures de données", forum_type: "discussion", created_at: "2024-01-15", courseTitle: "Algorithmes et Structures de Données" },
+  { id: "2", title: "Compte rendu - TD1 Python", description: "Résumé du premier TD de programmation", forum_type: "compte_rendu", created_at: "2024-01-10", courseTitle: "Introduction à la Programmation" },
+  { id: "3", title: "Questions Base de Données", description: "Posez vos questions sur les bases de données", forum_type: "discussion", created_at: "2024-01-20", courseTitle: "Base de Données" },
+  { id: "4", title: "Projet Web - Phase 1", description: "Discussion sur le premier projet de développement web", forum_type: "discussion", created_at: "2024-01-22", courseTitle: "Développement Web" },
+];
 
 export default function ForumsPage() {
-  const { profile } = useAuth();
-  const [forums, setForums] = useState<Forum[]>([]);
   const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("forums")
-        .select("id, title, description, forum_type, created_at, course:courses(title)")
-        .order("created_at", { ascending: false });
-      setForums((data as any) || []);
-    };
-    fetch();
-  }, []);
 
   const filtered = forums.filter((f) =>
     f.title.toLowerCase().includes(search.toLowerCase())
@@ -89,10 +69,10 @@ export default function ForumsPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm group-hover:text-primary transition-colors">{forum.title}</p>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <Badge variant="secondary" className="text-xs">{(forum.course as any)?.title || "Cours"}</Badge>
+                      <Badge variant="secondary" className="text-xs">{forum.courseTitle}</Badge>
                       <Badge className={`text-xs ${typeColor(forum.forum_type)} border-0`}>{typeLabel(forum.forum_type)}</Badge>
                       <span className="text-xs text-muted-foreground">
-                        {format(new Date(forum.created_at), "d MMM yyyy", { locale: fr })}
+                        {forum.created_at}
                       </span>
                     </div>
                     {forum.description && (

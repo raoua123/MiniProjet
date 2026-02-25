@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings, User, Lock, Save } from "lucide-react";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const { profile, user } = useAuth();
-  const [firstName, setFirstName] = useState(profile?.first_name || "");
-  const [lastName, setLastName] = useState(profile?.last_name || "");
+  const [firstName, setFirstName] = useState("John");
+  const [lastName, setLastName] = useState("Doe");
   const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -20,21 +16,22 @@ export default function SettingsPage() {
   const [newPw, setNewPw] = useState("");
   const [changingPw, setChangingPw] = useState(false);
 
-  const handleSaveProfile = async () => {
-    if (!user) return;
+  const handleSaveProfile = () => {
     setSaving(true);
-    const { error } = await supabase.from("profiles").update({ first_name: firstName, last_name: lastName }).eq("user_id", user.id);
-    if (error) toast.error("Erreur lors de la sauvegarde");
-    else toast.success("Profil mis à jour ✅");
-    setSaving(false);
+    // Mock save - simulate delay
+    setTimeout(() => {
+      setSaving(false);
+    }, 1000);
   };
 
-  const handleChangePassword = async () => {
+  const handleChangePassword = () => {
     setChangingPw(true);
-    const { error } = await supabase.auth.updateUser({ password: newPw });
-    if (error) toast.error(error.message);
-    else { toast.success("Mot de passe changé ✅"); setCurrentPw(""); setNewPw(""); }
-    setChangingPw(false);
+    // Mock password change - simulate delay
+    setTimeout(() => {
+      setChangingPw(false);
+      setCurrentPw("");
+      setNewPw("");
+    }, 1000);
   };
 
   return (
@@ -66,7 +63,7 @@ export default function SettingsPage() {
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input value={profile?.email || ""} disabled className="bg-muted" />
+              <Input value="john.doe@example.com" disabled className="bg-muted" />
             </div>
             <Button onClick={handleSaveProfile} disabled={saving} className="gap-1">
               <Save className="h-4 w-4" /> {saving ? "Sauvegarde..." : "Enregistrer"}

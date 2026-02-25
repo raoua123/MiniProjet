@@ -1,12 +1,11 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { motion } from "framer-motion";
 
 const DAYS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+
 const DAY_COLORS = [
   "bg-primary/10 border-primary/20",
   "bg-accent/10 border-accent/20",
@@ -16,30 +15,16 @@ const DAY_COLORS = [
   "bg-secondary border-secondary",
 ];
 
-type Schedule = {
-  id: string;
-  day_of_week: number;
-  start_time: string;
-  end_time: string;
-  room: string | null;
-  course: { title: string } | null;
-};
+const schedules = [
+  { id: "1", day_of_week: 1, start_time: "09:00", end_time: "10:30", room: "Salle 101", courseTitle: "Introduction à la Programmation" },
+  { id: "2", day_of_week: 1, start_time: "11:00", end_time: "12:30", room: "Salle 102", courseTitle: "Algorithmes et Structures de Données" },
+  { id: "3", day_of_week: 2, start_time: "09:00", end_time: "10:30", room: "Salle 201", courseTitle: "Base de Données" },
+  { id: "4", day_of_week: 2, start_time: "14:00", end_time: "15:30", room: "Salle 103", courseTitle: "Développement Web" },
+  { id: "5", day_of_week: 3, start_time: "10:00", end_time: "11:30", room: "Salle 301", courseTitle: "Intelligence Artificielle" },
+];
 
 export default function SchedulePage() {
-  const { profile } = useAuth();
-  const [schedules, setSchedules] = useState<Schedule[]>([]);
-  const [selectedDay, setSelectedDay] = useState(new Date().getDay());
-
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      const { data } = await supabase
-        .from("schedules")
-        .select("id, day_of_week, start_time, end_time, room, course:courses(title)")
-        .order("start_time");
-      setSchedules((data as any) || []);
-    };
-    fetchSchedules();
-  }, []);
+  const [selectedDay, setSelectedDay] = useState(1);
 
   const daySchedules = schedules.filter((s) => s.day_of_week === selectedDay);
 
@@ -95,11 +80,11 @@ export default function SchedulePage() {
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="flex flex-col items-center min-w-[70px]">
                     <Clock className="h-4 w-4 text-primary mb-1" />
-                    <span className="text-xs font-medium">{s.start_time?.slice(0, 5)}</span>
-                    <span className="text-xs text-muted-foreground">{s.end_time?.slice(0, 5)}</span>
+                    <span className="text-xs font-medium">{s.start_time}</span>
+                    <span className="text-xs text-muted-foreground">{s.end_time}</span>
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium">{(s.course as any)?.title || "Cours"}</p>
+                    <p className="font-medium">{s.courseTitle}</p>
                     {s.room && (
                       <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
                         <MapPin className="h-3 w-3" /> {s.room}

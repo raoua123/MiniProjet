@@ -1,38 +1,17 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ClipboardList, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
 
-type AttendanceRecord = {
-  id: string;
-  date: string;
-  present: boolean;
-  schedule: { course: { title: string } | null } | null;
-};
+const records = [
+  { id: "1", date: "2024-01-15", present: true, courseTitle: "Introduction à la Programmation" },
+  { id: "2", date: "2024-01-17", present: true, courseTitle: "Algorithmes et Structures de Données" },
+  { id: "3", date: "2024-01-22", present: false, courseTitle: "Base de Données" },
+  { id: "4", date: "2024-01-24", present: true, courseTitle: "Développement Web" },
+  { id: "5", date: "2024-01-29", present: true, courseTitle: "Intelligence Artificielle" },
+];
 
 export default function AttendancePage() {
-  const { profile, user } = useAuth();
-  const [records, setRecords] = useState<AttendanceRecord[]>([]);
-
-  useEffect(() => {
-    if (!user) return;
-    const fetch = async () => {
-      const { data } = await supabase
-        .from("attendance")
-        .select("id, date, present, schedule:schedules(course:courses(title))")
-        .eq("student_id", user.id)
-        .order("date", { ascending: false })
-        .limit(50);
-      setRecords((data as any) || []);
-    };
-    fetch();
-  }, [user]);
-
   const total = records.length;
   const present = records.filter((r) => r.present).length;
   const rate = total > 0 ? Math.round((present / total) * 100) : 0;
@@ -42,7 +21,7 @@ export default function AttendancePage() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="font-display text-2xl font-bold flex items-center gap-2">
           <ClipboardList className="h-6 w-6 text-primary" />
-          {profile?.role === "teacher" ? "Gestion de la présence" : "Mes absences"}
+          Mes absences
         </h1>
         <p className="text-muted-foreground">Suivez votre taux de présence</p>
       </motion.div>
@@ -72,7 +51,6 @@ export default function AttendancePage() {
         })}
       </div>
 
-      {/* Rate bar */}
       <Card className="shadow-card border-0">
         <CardContent className="p-5">
           <div className="flex items-center justify-between mb-2">
@@ -115,10 +93,10 @@ export default function AttendancePage() {
                     )}
                     <div>
                       <p className="text-sm font-medium">
-                        {(rec.schedule as any)?.course?.title || "Cours"}
+                        {rec.courseTitle}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {format(new Date(rec.date), "EEEE d MMMM yyyy", { locale: fr })}
+                        {rec.date}
                       </p>
                     </div>
                   </div>
