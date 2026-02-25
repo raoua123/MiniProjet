@@ -1,14 +1,490 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL") 
+}
+
+model Utilisateur {
+  id                    Int             @id @default(autoincrement())
+  email                 String          @unique
+  motDePasse            String
+  sel                   String
+  nom                   String          @db.VarChar(50)
+  prenom                String          @db.VarChar(50)
+  dateNaissance         DateTime?
+  telephone             String?         @db.VarChar(20)
+  adresse               String?         @db.VarChar(255)
+  photoProfil           String?         @db.VarChar(500)
+  typeUtilisateur       String
+  statut                StatutCompte    @default(EN_ATTENTE)
+  dateCreation          DateTime        @default(now())
+  dateDerniereConnexion DateTime?
+  valideEmail           Boolean         @default(false)
+  administrateur        Administrateur?
+  enseignant            Enseignant?
+  etudiant              Etudiant?
+  messages              Message[]
+  oauthCodes            OAuthCode[]
+  oauthTokens           OAuthToken[]
+
+  @@map("utilisateurs")
+}
+
+model Filiere {
+  id             Int          @id @default(autoincrement())
+  nom            String       @db.VarChar(100)
+  code           String       @unique @db.VarChar(20)
+  description    String?
+  niveauAcces    NiveauEtude
+  dureeEtudes    Int
+  creditsTotal   Int
+  estActive      Boolean      @default(true)
+  capaciteMax    Int?
+  effectifActuel Int          @default(0)
+  responsableId  Int?         @unique
+  etudiants      Etudiant[]
+  responsable    Enseignant?  @relation(fields: [responsableId], references: [id])
+  specialites    Specialite[]
+
+  @@map("filieres")
+}
+
+model Salle {
+  id          Int       @id @default(autoincrement())
+  code        String    @unique @db.VarChar(20)
+  nom         String    @db.VarChar(50)
+  batiment    String    @db.VarChar(50)
+  capacite    Int
+  type        String    @db.VarChar(50)
+  equipements String?
+  estActive   Boolean   @default(true)
+  sessions    Session[]
+
+  @@map("salles")
+}
+
+model Enseignant {
+  id                    Int          @id @default(autoincrement())
+  utilisateurId         Int          @unique
+  matricule             String       @unique @db.VarChar(20)
+  grade                 String       @db.VarChar(50)
+  specialite            String       @db.VarChar(100)
+  dateRecrutement       DateTime?
+  bureau                String?      @db.VarChar(20)
+  telephoneInterne      String?      @db.VarChar(10)
+  heuresServiceAnnuel   Int?
+  heuresEffectuees      Int?
+  estResponsableFiliere Boolean      @default(false)
+  coursEnseignes        Cours[]
+  documentsDeposes      Document[]
+  utilisateur           Utilisateur  @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  examensSurveilles     Examen[]
+  filiereResponsable    Filiere?
+  forumsCrees           Forum[]
+  modules               Module[]
+  presencesMarquees     Presence[]
+  promotions            Promotion[]
+  sessionsAnimees       Session[]
+  specialites           Specialite[]
+
+  @@map("enseignants")
+}
+
+model Administrateur {
+  id            Int         @id @default(autoincrement())
+  utilisateurId Int         @unique
+  matricule     String      @unique @db.VarChar(20)
+  service       String      @db.VarChar(100)
+  role          String      @db.VarChar(50)
+  permissions   String?
+  niveauAcces   Int         @default(1)
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  @@map("administrateurs")
+}
+
+model Etudiant {
+  id              Int           @id @default(autoincrement())
+  utilisateurId   Int           @unique
+  numeroEtudiant  String        @unique @db.VarChar(20)
+  numeroINE       String        @unique @db.VarChar(11)
+  anneeAcademique String        @db.VarChar(9)
+  niveau          NiveauEtude
+  semestreActuel  Semestre
+  groupe          String?       @db.VarChar(10)
+  sousGroupe      String?       @db.VarChar(10)
+  moyenneGenerale Decimal?
+  creditsAcquis   Int           @default(0)
+  tauxAbsence     Decimal?      @db.Decimal(5, 2)
+  filiereId       Int
+  documents       Document[]
+  filiere         Filiere       @relation(fields: [filiereId], references: [id])
+  utilisateur     Utilisateur   @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  inscriptions    Inscription[]
+  notes           Note[]
+  presences       Presence[]
+
+  @@map("etudiants")
+}
+
+model Specialite {
+  id            Int         @id @default(autoincrement())
+  nom           String      @db.VarChar(100)
+  code          String      @unique @db.VarChar(20)
+  description   String?
+  estActive     Boolean     @default(true)
+  filiereId     Int
+  responsableId Int?
+  promotions    Promotion[]
+  filiere       Filiere     @relation(fields: [filiereId], references: [id])
+  responsable   Enseignant? @relation(fields: [responsableId], references: [id])
+
+  @@map("specialites")
+}
+
+model Promotion {
+  id                 Int           @id @default(autoincrement())
+  code               String        @unique @db.VarChar(20)
+  anneeUniversitaire String        @db.VarChar(9)
+  niveau             NiveauEtude
+  groupes            String?
+  effectifReel       Int           @default(0)
+  estActive          Boolean       @default(true)
+  specialiteId       Int
+  responsableId      Int?
+  emploisTemps       EmploiTemps[]
+  inscriptions       Inscription[]
+  programmes         Programme[]
+  responsable        Enseignant?   @relation(fields: [responsableId], references: [id])
+  specialite         Specialite    @relation(fields: [specialiteId], references: [id])
+
+  @@map("promotions")
+}
+
+model Programme {
+  id                 Int       @id @default(autoincrement())
+  code               String    @unique @db.VarChar(20)
+  nom                String    @db.VarChar(200)
+  semestre           Semestre
+  volumeHoraireTotal Int
+  creditsSemestre    Int
+  estValide          Boolean   @default(false)
+  promotionId        Int
+  cours              Cours[]
+  promotion          Promotion @relation(fields: [promotionId], references: [id])
+
+  @@map("programmes")
+}
+
+model EmploiTemps {
+  id                 Int       @id @default(autoincrement())
+  code               String    @unique @db.VarChar(30)
+  groupe             String?   @db.VarChar(10)
+  semaine            Int
+  anneeUniversitaire String    @db.VarChar(9)
+  dateDebut          DateTime
+  dateFin            DateTime
+  datePublication    DateTime?
+  fichierPDF         String?   @db.VarChar(500)
+  promotionId        Int
+  promotion          Promotion @relation(fields: [promotionId], references: [id])
+  sessions           Session[]
+
+  @@map("emplois_temps")
+}
+
+model Session {
+  id            Int         @id @default(autoincrement())
+  code          String      @unique @db.VarChar(30)
+  type          TypeSession
+  date          DateTime
+  heureDebut    String      @db.VarChar(5)
+  heureFin      String      @db.VarChar(5)
+  groupe        String?     @db.VarChar(10)
+  estAnnulee    Boolean     @default(false)
+  emploiTempsId Int
+  moduleId      Int
+  coursId       Int?
+  enseignantId  Int
+  salleId       Int
+  presences     Presence[]
+  cours         Cours?      @relation(fields: [coursId], references: [id])
+  emploiTemps   EmploiTemps @relation(fields: [emploiTempsId], references: [id])
+  enseignant    Enseignant  @relation(fields: [enseignantId], references: [id])
+  module        Module      @relation(fields: [moduleId], references: [id])
+  salle         Salle       @relation(fields: [salleId], references: [id])
+
+  @@map("sessions")
+}
+
+model Inscription {
+  id                Int       @id @default(autoincrement())
+  numeroInscription String    @unique @db.VarChar(30)
+  dateInscription   DateTime  @default(now())
+  dateValidation    DateTime?
+  statut            String    @db.VarChar(20)
+  quitusFinancier   Boolean   @default(false)
+  montantFrais      Decimal?  @db.Decimal(10, 2)
+  statutPaiement    String?   @db.VarChar(20)
+  etudiantId        Int
+  promotionId       Int
+  validePar         Int?
+  coursId           Int?
+  cours             Cours?    @relation(fields: [coursId], references: [id])
+  etudiant          Etudiant  @relation(fields: [etudiantId], references: [id])
+  promotion         Promotion @relation(fields: [promotionId], references: [id])
+
+  @@unique([etudiantId, promotionId])
+  @@map("inscriptions")
+}
+
+model Cours {
+  id                    Int           @id @default(autoincrement())
+  code                  String        @unique @db.VarChar(20)
+  nom                   String        @db.VarChar(200)
+  description           String?
+  volumeHoraireCM       Int           @default(0)
+  volumeHoraireTD       Int           @default(0)
+  volumeHoraireTP       Int           @default(0)
+  credits               Int
+  coefficient           Decimal       @db.Decimal(4, 2)
+  estOptionnel          Boolean       @default(false)
+  programmeId           Int
+  enseignantPrincipalId Int
+  enseignantPrincipal   Enseignant    @relation(fields: [enseignantPrincipalId], references: [id])
+  programme             Programme     @relation(fields: [programmeId], references: [id])
+  documents             Document[]
+  forums                Forum[]
+  inscriptions          Inscription[]
+  modules               Module[]
+  seances               Session[]
+
+  @@map("cours")
+}
+
+model Module {
+  id                    Int         @id @default(autoincrement())
+  code                  String      @unique @db.VarChar(20)
+  nom                   String      @db.VarChar(200)
+  type                  String?
+  groupeCible           String?     @db.VarChar(10)
+  volumeHoraire         Int
+  coefficient           Decimal     @db.Decimal(4, 2)
+  sallePreferee         String?     @db.VarChar(50)
+  coursId               Int
+  enseignantPrincipalId Int?
+  documents             Document[]
+  examens               Examen[]
+  cours                 Cours       @relation(fields: [coursId], references: [id])
+  enseignantPrincipal   Enseignant? @relation(fields: [enseignantPrincipalId], references: [id])
+  sessions              Session[]
+
+  @@map("modules")
+}
+
+model Presence {
+  id            Int         @id @default(autoincrement())
+  estPresent    Boolean     @default(false)
+  heureArrivee  String?     @db.VarChar(5)
+  justification String?     @db.VarChar(200)
+  justifiee     Boolean     @default(false)
+  dateMarquage  DateTime    @default(now())
+  sessionId     Int
+  etudiantId    Int
+  marquePar     Int?
+  etudiant      Etudiant    @relation(fields: [etudiantId], references: [id])
+  enseignant    Enseignant? @relation(fields: [marquePar], references: [id])
+  session       Session     @relation(fields: [sessionId], references: [id])
+
+  @@unique([sessionId, etudiantId])
+  @@map("presences")
+}
+
+model Examen {
+  id             Int         @id @default(autoincrement())
+  code           String      @unique @db.VarChar(30)
+  type           String      @db.VarChar(50)
+  titre          String      @db.VarChar(200)
+  date           DateTime
+  heureDebut     String      @db.VarChar(5)
+  duree          Int
+  coefficient    Decimal     @db.Decimal(4, 2)
+  bareme         Decimal     @db.Decimal(5, 2)
+  surveillantIds String?
+  statut         String      @db.VarChar(20)
+  moduleId       Int
+  enseignantId   Int?
+  enseignant     Enseignant? @relation(fields: [enseignantId], references: [id])
+  module         Module      @relation(fields: [moduleId], references: [id])
+  notes          Note[]
+
+  @@map("examens")
+}
+
+model Note {
+  id             Int       @id @default(autoincrement())
+  valeur         Decimal   @db.Decimal(5, 2)
+  valeurSur20    Decimal   @db.Decimal(5, 2)
+  mention        String?   @db.VarChar(20)
+  dateSaisie     DateTime  @default(now())
+  dateValidation DateTime?
+  examenId       Int
+  etudiantId     Int
+  saisiePar      Int?
+  validePar      Int?
+  etudiant       Etudiant  @relation(fields: [etudiantId], references: [id])
+  examen         Examen    @relation(fields: [examenId], references: [id])
+
+  @@map("notes")
+}
+
+model Document {
+  id                Int          @id @default(autoincrement())
+  titre             String       @db.VarChar(200)
+  type              TypeDocument
+  format            String       @db.VarChar(10)
+  taille            Int
+  url               String       @db.VarChar(500)
+  dateDepot         DateTime     @default(now())
+  nbTelechargements Int          @default(0)
+  coursId           Int?
+  moduleId          Int?
+  enseignantId      Int?
+  etudiantId        Int?
+  deposePar         Int?
+  cours             Cours?       @relation(fields: [coursId], references: [id])
+  enseignant        Enseignant?  @relation(fields: [enseignantId], references: [id])
+  etudiant          Etudiant?    @relation(fields: [etudiantId], references: [id])
+  module            Module?      @relation(fields: [moduleId], references: [id])
+
+  @@map("documents")
+}
+
+model Forum {
+  id           Int        @id @default(autoincrement())
+  titre        String     @db.VarChar(200)
+  description  String?
+  type         TypeForum
+  estPrive     Boolean    @default(true)
+  dateCreation DateTime   @default(now())
+  nbMessages   Int        @default(0)
+  coursId      Int
+  createdBy    Int
+  cours        Cours      @relation(fields: [coursId], references: [id])
+  createur     Enseignant @relation(fields: [createdBy], references: [id])
+  messages     Message[]
+
+  @@map("forums")
+}
+
+model Message {
+  id              Int         @id @default(autoincrement())
+  contenu         String
+  datePublication DateTime    @default(now())
+  nbLikes         Int         @default(0)
+  forumId         Int
+  auteurId        Int
+  parentId        Int?
+  auteur          Utilisateur @relation(fields: [auteurId], references: [id])
+  forum           Forum       @relation(fields: [forumId], references: [id])
+  parent          Message?    @relation("replies", fields: [parentId], references: [id])
+  replies         Message[]   @relation("replies")
+
+  @@map("messages")
+}
+
+model OAuthClient {
+  id           String       @id @default(cuid())
+  clientId     String       @unique
+  clientSecret String
+  name         String
+  grants       Json
+  redirectUris Json
+  scope        String       @default("profile email")
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  codes        OAuthCode[]
+  tokens       OAuthToken[]
+
+  @@map("oauth_clients")
+}
+
+model OAuthToken {
+  id                    String      @id @default(cuid())
+  accessToken           String      @unique
+  accessTokenExpiresAt  DateTime
+  refreshToken          String?     @unique
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  clientId              String
+  utilisateurId         Int
+  createdAt             DateTime    @default(now())
+  client                OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user                  Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  @@map("oauth_tokens")
+}
+
+model OAuthCode {
+  id                String      @id @default(cuid())
+  authorizationCode String      @unique
+  expiresAt         DateTime
+  redirectUri       String
+  scope             String?
+  clientId          String
+  utilisateurId     Int
+  createdAt         DateTime    @default(now())
+  client            OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user              Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  @@map("oauth_codes")
+}
+
+enum StatutCompte {
+  EN_ATTENTE
+  ACTIF
+  INACTIF
+  SUSPENDU
+  BLOQUE
+}
+
+enum TypeSession {
+  COURS_MAGISTRAL
+  TRAVAUX_DIRIGES
+  TRAVAUX_PRATIQUES
+  EXAMEN
+}
+
+enum TypeDocument {
+  COURS
+  TD
+  TP
+  EXAMEN
+}
+
+enum TypeForum {
+  GENERAL
+  QUESTIONS_REPONSES
+  COMPTES_RENDUS
+  ANNOUCES
+}
+
+enum NiveauEtude {
+  L1
+  L2
+  L3
+  M1
+  M2
+}
+
+enum Semestre {
+  S1
+  S2
+  S3
+  S4
+  S5
+  S6
 }
